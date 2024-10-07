@@ -1,5 +1,9 @@
 # Real-time-Detection-and-Translation-System-for-American-Sign-Language-ASL
 
+## Technologies
+
+###### Python - OpenCV2, Pandas, MediaPipe, OS, Sklearn, Toglib,
+
 ## Context
 
 This project originated from the need to create a technological solution that facilitates communication for individuals using ASL, as well as for those looking to learn this language. The goal is to bridge the gap between deaf or non-verbal individuals and the rest of society by providing an accessible and effective tool for visual communication. Through this project, we aim to promote inclusion and accessibility for all, recognizing the diversity of communication modes.
@@ -18,7 +22,3 @@ The main objectives of the ASL detection system are as follows:
 ###### • Creation of the Machine Learning model.  
 ###### • Testing the model.  
 ###### • Providing an intuitive user interface to interact with the system.
-
-## Technologies
-
-###### Python - OpenCV2, Pandas, MediaPipe, OS, Sklearn, Toglib,
