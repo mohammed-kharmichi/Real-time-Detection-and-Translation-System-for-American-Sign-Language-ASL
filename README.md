@@ -18,3 +18,7 @@ Les principaux objectifs du système de détection ASL sont les suivants :
 ###### • Création du modèle Machine Learning.
 ###### • Test du modèle.
 ###### • Fournir une interface utilisateur intuitive pour interagir avec le système.
+
+### Technologies
+
+###### Python - OpenCv2, Pandas, MediaPipe, OS, Toglib, Sklearn ( RandomForestClassifier, SVC ), PyQt5 
