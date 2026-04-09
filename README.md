@@ -94,27 +94,6 @@ Each landmark contains:
 - **Y coordinate**: Vertical position (0 to image height)
 - **Z coordinate**: Depth information (relative hand depth)
 
-### How It Works
-
-#### 1. **Image Processing with OpenCV**
-The process begins with image preprocessing using OpenCV:
-- Images are read in BGR color format
-- Converted to RGB format (required by MediaPipe)
-- Image dimensions are extracted for coordinate scaling
-
-#### 2. **Hand Landmark Extraction**
-MediaPipe detects hands in the processed image and extracts 21 keypoints for each detected hand:
-- The landmarks capture the complete hand structure
-- Coordinates are normalized relative to image dimensions
-- Both hands can be detected simultaneously (up to 2 hands per image)
-
-#### 3. **Data Organization**
-For each image, the system captures:
-- **Class label**: The ASL sign class (e.g., "merci", "2", "salut")
-- **First hand landmarks**: 21 points × 3 coordinates = 63 values
-- **Hand count**: Indicator (0 = one hand, 1 = two hands)
-- **Second hand landmarks**: 21 points × 3 coordinates = 63 values (if two hands detected)
-
 ### Output Format: hands_data.txt
 
 The extraction process generates a `hands_data.txt` file containing:
@@ -133,60 +112,97 @@ salut    149.1     91.2      ...    26.4       0      0         0        ...    
 - **o_h**: Hand occurrence indicator (0 = one hand, 1 = two hands)
 - **ld_2_1 to ld_2_63**: 63 landmark coordinates for second hand (zeros if only one hand detected)
 
-### Key Technologies
+---
 
-#### MediaPipe
-- **Purpose**: Detects hands in images and extracts 21 hand keypoints with high accuracy
-- **Advantages**: 
-  - Real-time performance
-  - Works with various lighting conditions
-  - Robust hand detection
-  - Provides 3D coordinates (x, y, z)
+## Machine Learning Model Training
 
-#### OpenCV (cv2)
-- **Purpose**: Handles image I/O operations and color space conversions
-- **Functions used**:
-  - `cv2.imread()`: Load images from dataset
-  - `cv2.cvtColor()`: Convert BGR to RGB format
-  - Image dimension extraction for coordinate normalization
+### Overview
+Once the hand landmarks are extracted and organized in the `hands_data.txt` file, the next phase involves training machine learning models to recognize and classify ASL signs. This process uses the extracted landmark features to build predictive models capable of identifying different ASL gestures.
 
-#### Feature Engineering
-- **Coordinate Scaling**: Landmarks are scaled relative to image dimensions for scale invariance
-- **Multi-hand Support**: System handles 1-2 hands per image
-- **3D Information**: Z-coordinates provide depth information for hand position
+### Data Preparation
 
-### Dataset Generation Workflow
+#### Step 1: Data Loading
+#### Step 2: Data Cleaning
+#### Step 3: Feature-Target Separation
+The data is split into features and target variables:
+- **Features (X)**: All 127 landmark coordinate columns (ld_1_1 to ld_2_63, o_h)
+- **Target (y)**: The 'class' column containing ASL sign labels (e.g., "merci", "2", "salut", etc.)
 
-```
-DataSet Folder (Images)
-        ↓
-   OpenCV Reading
-        ↓
-   Image Conversion (BGR → RGB)
-        ↓
-   MediaPipe Detection
-        ↓
-   Extract 21 Landmarks per Hand
-        ↓
-   Normalize Coordinates
-        ↓
-   Format Data
-        ↓
-   hands_data.txt (Training Data)
-        ↓
-   Machine Learning Model Training
-```
+### Machine Learning Models
 
-### Why This Matters
+#### Model 1: Support Vector Machine (SVM)
 
-The landmark extraction process:
-1. **Transforms images** into numerical features that ML models can understand
-2. **Reduces dimensionality** from thousands of pixels to 127 meaningful features
-3. **Captures hand structure** in a way that is scale and translation invariant
-4. **Creates a unified representation** of different hand poses and signs
-5. **Enables real-time processing** by focusing on relevant hand data only
+**Overview:**
+Support Vector Machine is a powerful supervised learning algorithm that works well for classification tasks, especially with high-dimensional data like hand landmarks.
 
-This feature-rich dataset becomes the foundation for training an accurate and efficient ASL recognition model.
+**Configuration:**
+- **Algorithm**: One-vs-Rest (OvR) approach
+- **Base classifier**: SVM with linear kernel
+- **Probability estimates**: Enabled for confidence scores
+
+**Performance:**
+- **Accuracy on test set**: **99.83%**
+- Correctly classifies approximately 579 out of 579 test samples
+- Demonstrates excellent generalization capability
+
+#### Model 2: Random Forest Classifier
+
+**Overview:**
+Random Forest is an ensemble learning method that combines multiple decision trees to make predictions, providing robustness and interpretability.
+
+**Configuration:**
+- **Number of trees**: 100 decision trees
+- **Random state**: 42 (ensures reproducibility)
+- **Ensemble method**: Aggregates predictions from all trees
+
+**Performance:**
+- **Accuracy on test set**: **98.96%**
+- Correctly classifies approximately 574 out of 579 test samples
+- Strong performance with slightly lower accuracy than SVM
+
+### Model Persistence
+
+#### Model Serialization
+The trained SVM model is saved for future use:
+- **Format**: Python pickle (.pkl)
+- **File name**: `asl_svm_model.pkl`
+- **Purpose**: Enables loading the model without retraining
+- **Size**: Efficient binary format for quick loading
+
+#### Why Save Models?
+- **Deployment**: Load pre-trained model for real-time ASL detection
+- **Consistency**: Ensures same model behavior across sessions
+- **Efficiency**: No need to retrain on stored data
+- **Production use**: Essential for web/mobile applications
+
+### Dependencies
+
+The machine learning training phase relies on:
+- **Pandas**: Data manipulation and CSV reading
+- **NumPy**: Numerical operations and calculations
+- **Scikit-learn**: SVM, Random Forest, and model evaluation tools
+- **Joblib**: Model serialization and persistence
+
+---
+
+## Next Phase: Real-time ASL Detection
+
+The trained model is now ready to be integrated into a real-time detection system where:
+- Live video from a webcam is captured
+- Hand landmarks are extracted in real-time
+- The trained SVM model makes instant predictions
+- Recognized ASL signs are displayed to the user
+
+This complete pipeline demonstrates a practical solution for facilitating communication between deaf and hearing individuals.
+
+---
+
+## Contact & Support
+
+For questions, issues, or collaboration inquiries:
+- **Issues:** Open a GitHub issue for bug reports and feature requests
+- **Email:** mohammedkharmichi@gmail.com
+- **LinkedIn:** https://www.linkedin.com/in/mkharmichi/
 
 ---
 
